@@ -1,0 +1,2 @@
+call "./runoxwin.bat"
+pause

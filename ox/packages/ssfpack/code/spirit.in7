@@ -1,0 +1,8 @@
+pcgive 700
+data spirit.BN7
+;Per capita consumption of spirits in UK, income
+;per capita and relative price; see Prest (Rev.
+;of Econ and Stats., 1949).
+>spirits      1870  1 1938  1  1 32       spirit 08-03-1995 21:40:00.52
+>price        1870  1 1938  1  1 616       spirit 08-03-1995 21:40:00.52
+>income       1870  1 1938  1  1 1200       spirit 08-03-1995 21:40:00.52

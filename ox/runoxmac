@@ -1,0 +1,11 @@
+pathoxl_portable_seb=/Applications/OxMetrics9/ox/oxl
+namecode=TVB_9
+pathdata="./data/concat.csv"
+firstday="1926-07-01"
+lastday="2021-10-29"
+namesY="Manuf_vw"
+namesX="{Mkt,SMB}"
+pathbetas="./betas/betas_SFF_"$firstday"_"$lastday"_"$namesY"_"$namesX".csv"
+
+echo "Running Ox Code"
+$pathoxl_portable_seb $namecode.ox $pathdata $pathbetas $firstday $lastday $namesY $namesX
