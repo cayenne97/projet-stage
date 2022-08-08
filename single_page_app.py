@@ -931,6 +931,42 @@ dbc.NavLink("Concatenation",href= "#concatenation", external_link=True,className
                                  ])
                              ])
                           ]),
+        html.H2("Glossary",className="Glossary",id="glossary"),
+        html.A("Back to top",href="#top",className="Link"),
+        html.A('Concatenation', href='#concatenation',className="Link"),
+        html.A('OLS Regression', href="#OLS Regression", className='Link'),
+        html.A('Rolling OLS',href="#rolling OLS", className="Link"),
+        html.A('State space', href='#state space', className='Link'),
+        html.H4("Fama/French 3 factors[daily]",className="subtitle_glossary"),
+        html.Div(className="Descriptions",children=[
+            html.P("Mkt-RF:the market risk premium"),
+            html.P("SMB(Small Minus Big):the average return on the three small portfolios minus the average return on the three big portfolios"),
+            html.P("HML(High Minus Low): the average return on the two value portfolios minus the average return on the two growth portfolios"),
+            html.P("RF:the risk free rate; rate of return of an investissment without risk of loss.")]),
+        html.Br(),
+        html.H4("Fama/French 5 factors (2x3)[daily]",className="subtitle_glossary"),
+        html.Div(className="Descriptions",children=[
+            html.P("SMB (Small Minus Big): the average return on the nine small stock portfolios minus the average return on the nine big stock portfolios"),
+            html.P("HML (High Minus Low): the average return on the two value portfolios minus the average return on the two growth portfolios"),
+            html.P("RMW (Robust Minus Weak): the average return on the two robust operating profitability portfolios minus the average return on the two weak operating profitability portfolios"),
+            html.P("CMA (Conservative Minus Aggressive): the average return on the two conservative investment portfolios minus the average return on the two aggressive investment portfolios")]),
+        html.H4("12 Industry Portfolios[daily]",className="subtitle_glossary"),
+        html.Div(className="Descriptions",children=[
+            html.P("NoDur:consumer not durables"),
+            html.P("Durbl:consumer durables"),
+            html.P("Manuf:manufacturing goods"),
+            html.P("Enrgy:energy goods"),
+            html.P("Chems:chemical goods"),
+            html.P("BusEq:business equipment"),
+            html.P("Telcm:telephone and television transmission"),
+            html.P("Utils:utilities"),
+            html.P("Shops:retail and others services"),
+            html.P("Hilth:healthcare goods"),
+            html.P("Money:financial goods"),
+            html.P("Other:others goods and services like transports, hotels, constructions...")]),
+            html.P("© Thomas Mille - all rights reserved", style={"text-align":"center"}),
+            html.A(html.Img(src="/assets/LinkedIn-logo.png", style={"width":"2cm"}),href="https://www.linkedin.com/in/thomas-mill%C3%A9-baabb01ba/",target="_blank", title="Contact me"),
+            html.A(html.Img(src="/assets/Github.png",style={"width":"1cm"}), href="https://github.com/cayenne97/projet-stage", target="_blank", title="You can see my code here"),
 
 
 dbc.Nav([
