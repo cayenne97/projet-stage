@@ -64,7 +64,10 @@ Industry_12= pd.read_csv("https://mba.tuck.dartmouth.edu/pages/faculty/ken.frenc
 
 Industry_12=Industry_12.apply(pd.to_numeric,errors='coerce')
 
-
+# =============================================================================
+# Séparation de la base de données "12 Industry Portofolios[daily]" en Average Value Weighted Returns (vw)
+# et Average Equal Weighted Returns (ew)
+# =============================================================================
 
 
 
@@ -124,8 +127,8 @@ déviations_ew= pd.DataFrame({'DevNoDDur_ew':Secondpart["NoDur_ew"] - ff_factors
 déviations_ew=round(déviations_ew,3)
 
 
-# =============================================================================
-# Concaténation des dataframes:
+# ============================================================================
+# Concaténation de "Fama/French 3 factors[daily] et de "12 Industry Portofios[daily]
 # =============================================================================
 
 concat= pd.concat([ff_factors, Firstpart, Secondpart],axis=1).reset_index() # Alow to see the index.
@@ -135,8 +138,15 @@ concat.set_index('index', inplace=True)
 concat['year']=concat.index.year
 concat.insert(0, 'date', concat.pop("date"))
 
+# =============================================================================
+# Concaténation des déviations par rapport à RF
+# =============================================================================
 concatDev= pd.concat([déviations_vw, déviations_ew],axis=1).reset_index()
 concatDev["index"]= pd.to_datetime(concatDev["index"]).dt.date
+
+# =============================================================================
+# Concaténation des dataframes "Fama/French 3 factors[daily]", " 12 Industry Portfolios[daily]" et les déviations par rapport à RF
+# =============================================================================
 
 concatwithDev=pd.concat([ff_factors,Firstpart, Secondpart,déviations_vw, déviations_ew],axis=1).reset_index()
 concatwithDev["index"]= pd.to_datetime(concatwithDev["index"]).dt.date
@@ -149,6 +159,10 @@ concat5factors["index"]=pd.to_datetime(concat5factors["index"],errors="coerce").
 concat5factors= concat5factors.rename(columns={"index":"date"})
 concat5factors.insert(0, 'date', concat5factors.pop("date"))
 
+
+# =============================================================================
+# Concaténation des dataframes "Fama/French 5 factors[daily]", " 12 Industry Portfolios[daily] et les déviations par rapport à RF
+# =============================================================================
 
 concat5factorswithMkt=pd.concat([ff_factors_5.reset_index(drop=True),Industry_12_vw_1963_2021.reset_index(),Industry_12_ew_1963_2021.reset_index(drop=True)],axis=1)
 concat5factorswithMkt["index"]= pd.to_datetime(concat5factorswithMkt["index"]).dt.date
