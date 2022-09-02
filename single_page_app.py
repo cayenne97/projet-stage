@@ -37,24 +37,24 @@ from app_utils import (
     get_team_table_description,
     resume_project)
 
-   
+# =============================================================================
+# Téléchargement des bases de données:
+# =============================================================================   
     
 # Fama_French 3 and 5 Factors[daily]:
     
 ff_factors= pd.read_csv("https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip",
-               skiprows = 3,index_col=0).drop("Copyright 2021 Kenneth R. French",axis=0)
+               skiprows = 3,index_col=0).drop("Copyright 2022 Kenneth R. French",axis=0)
 ff_factors= round(ff_factors,3)
 
 ff_factors_5= pd.read_csv("https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_5_Factors_2x3_daily_CSV.zip",skiprows=3,index_col=0)
                         
-Industry_12_portfolios= pd.read_csv("https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/12_Industry_Portfolios_daily_CSV.zip",skiprows=10430,index_col=0).drop("Copyright 2021 Kenneth R. French",axis=0).reset_index()
-
-# =============================================================================
+    
 # 12 Industry Portfolios[daily]:
-# =============================================================================
+
     
 Industry_12= pd.read_csv("https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/12_Industry_Portfolios_daily_CSV.zip",
-                     skiprows = 9,index_col=0,sep='\s*,\s*', engine='python').drop("Copyright 2021 Kenneth R. French",axis=0)
+                     skiprows = 9,index_col=0,sep='\s*,\s*', engine='python').drop("Copyright 2022 Kenneth R. French",axis=0)
 
 
 
@@ -138,11 +138,6 @@ concat.insert(0, 'date', concat.pop("date"))
 concatDev= pd.concat([déviations_vw, déviations_ew],axis=1).reset_index()
 concatDev["index"]= pd.to_datetime(concatDev["index"]).dt.date
 
-# =============================================================================
-# concatwithDev= pd.read_csv("C:/Users/thoma/OneDrive/Bureau/projet/ox/data/concat.csv")
-# concatwithDev=round(concatwithDev,3)
-# =============================================================================
-
 concatwithDev=pd.concat([ff_factors,Firstpart, Secondpart,déviations_vw, déviations_ew],axis=1).reset_index()
 concatwithDev["index"]= pd.to_datetime(concatwithDev["index"]).dt.date
 concatwithDev=concatwithDev.rename(columns={'index':'date','Mkt-RF':'Mkt'})
@@ -184,14 +179,13 @@ concat5factorswithMkt.to_csv("C:/Users/thoma/Desktop/projet/ox/data/concat5facto
 
 
 # =============================================================================
-# OLS Regression of the varible on "MkT-RF", "SMB","RF"
+# OLS Regression of the variable on "MkT-RF", "SMB","RF"
 # =============================================================================
 
 y= concat["NoDur_vw"]
 X= concat[["Mkt-RF","SMB","HML"]]
 model= LinearRegression()
 res= model.fit(X,y)
-
 
 y= concat["Durbl_vw"]
 X= concat[["Mkt-RF","SMB","HML"]]
@@ -325,8 +319,6 @@ y= concat["Other_ew"]
 X= concat[["Mkt-RF","SMB","HML"]]
 model= LinearRegression()
 Other_ew= model.fit(X,y)
-
-
 
 # =============================================================================
 # List of Dropdowns
@@ -471,7 +463,9 @@ rangeSlider_5factors_ew= dcc.RangeSlider(id='my_rangeslider_5factors_ew',
                            2020: {"label": "2020"}})
 
 
-    
+# =============================================================================
+# Boards of linear regressions:
+# =============================================================================    
 
 NoDur={"Intercept":res.intercept_, "Mkt-RF": res.coef_[0], "SMB":res.coef_[1],"HML":res.coef_[2]}
 Durbl= {"Intercept":Durbl_vw.intercept_, "Mkt-RF": Durbl_vw.coef_[0], "SMB":Durbl_vw.coef_[1],"HML":Durbl_vw.coef_[2]}
@@ -578,7 +572,9 @@ tab= RollingOLS(concat5factors["NoDur_vw"],add_constant(concat5factors["CMA"]),w
 tab=tab.replace(tab.index,concat.date[10420:])
 
 
-
+# =============================================================================
+# Start of the code:
+# ============================================================================= 
 
 app = dash.Dash(__name__,
                 meta_tags=[{"name": "viewport", "content": "width=device-width"}],
