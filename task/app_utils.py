@@ -9,11 +9,11 @@ from dash import html, dcc
 import pandas as pd
 
 ff_factors= pd.read_csv("https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip",
-               skiprows = 3,index_col=0).drop("Copyright 2021 Kenneth R. French",axis=0)
+               skiprows = 3,index_col=0).drop("Copyright 2022 Kenneth R. French",axis=0)
 ff_factors= round(ff_factors,3)
 
 Industry_12= pd.read_csv("https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/12_Industry_Portfolios_daily_CSV.zip",
-                     skiprows = 9,index_col=0,sep='\s*,\s*',engine='python').drop("Copyright 2021 Kenneth R. French",axis=0)
+                     skiprows = 9,index_col=0,sep='\s*,\s*',engine='python').drop("Copyright 2022 Kenneth R. French",axis=0)
 
 ff_factors_5= pd.read_csv("https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_5_Factors_2x3_daily_CSV.zip",skiprows=3,index_col=0)
           
