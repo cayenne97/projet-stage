@@ -985,9 +985,13 @@ dbc.Nav([
         
 ]))
      
+# =============================================================================
+# Callbacks for the State Space method
+# =============================================================================
 
-
-
+#=============================================================================
+# Run the batch file "runoxwin.bat"
+# =============================================================================
 @app.callback(
     Output("container-button","children"),
     Input("run","n_clicks"),
@@ -1000,7 +1004,7 @@ dbc.Nav([
     )
     
 def displayclick(n_clicks,portefolios,value,start_date,end_date):
-    os.chdir('C:/Users/thoma/OneDrive/Bureau/projet/ox')
+    os.chdir('/home/thomas973/mysite/ox')
     myfile= open("runoxwin.bat","r")
     list_of_line= myfile.readlines()
     list_of_line[4]="SET firstday={start}\n".format(start=start_date)
@@ -1010,18 +1014,21 @@ def displayclick(n_clicks,portefolios,value,start_date,end_date):
     myfile= open("runoxwin.bat","w")
     myfile.writelines(list_of_line)
     myfile.close()
-    csv_files = glob.glob(os.path.join("C:/Users/thoma/OneDrive/Bureau/projet/ox/betas", "*.csv"))
+    csv_files = glob.glob(os.path.join("/home/thomas973/mysite/ox/betas", "*.csv"))
     latest_file= max(csv_files,key= os.path.getmtime)
     df= pd.read_csv(latest_file).drop("Unnamed: 0",axis=1)
     if n_clicks>0:
         return (
                os.startfile("runoxwin.bat"),
                os.remove(max(csv_files,key= os.path.getmtime)))
+# =============================================================================
+# Create the table with the data from the betas files
+# =============================================================================  
 @app.callback(
     Output("container-button-table","children"),
     Input("table","n_clicks"))
 def make_table_3_factors(n_clicks): 
-    csv_files = glob.glob(os.path.join("C:/Users/thoma/OneDrive/Bureau/projet/ox/betas", "*.csv"))
+    csv_files = glob.glob(os.path.join("/home/thomas973/mysite/ox/betas", "*.csv"))
     latest_file= max(csv_files,key= os.path.getmtime)
     df= round(pd.read_csv(latest_file).drop("Unnamed: 0",axis=1),5)
     if n_clicks>0:
@@ -1030,7 +1037,9 @@ def make_table_3_factors(n_clicks):
                                   data= df.to_dict('records'),
                                   page_size=10)
                                   
-                       
+# =============================================================================
+# Plotting the graphs from the betas files
+# =============================================================================                       
 @app.callback(
     Output("container-graph-ox","children"),
     State('dropdown2SP','value'),
@@ -1039,7 +1048,7 @@ def make_table_3_factors(n_clicks):
     
     )
 def update_graph(value,n_clicks):
-     csv_files = glob.glob(os.path.join("C:/Users/thoma/OneDrive/Bureau/projet/ox/betas", "*.csv"))
+     csv_files = glob.glob(os.path.join("/home/thomas973/mysite/ox/betas", "*.csv"))
      latest_file= max(csv_files,key= os.path.getmtime)
      df= pd.read_csv(latest_file).drop("Unnamed: 0",axis=1)
      if n_clicks>0:
@@ -1102,7 +1111,7 @@ def update_graph(value,n_clicks):
     
     
 def displayclick_5factors(n_clicks,portefolios,value,start_date,end_date):
-    os.chdir('C:/Users/thoma/OneDrive/Bureau/projet/ox')
+    os.chdir('/home/thomas973/mysite/ox')
     myfile= open("runoxwin1.bat","r")
     list_of_line= myfile.readlines()
     list_of_line[4]="SET firstday={start}\n".format(start=start_date)
@@ -1112,7 +1121,7 @@ def displayclick_5factors(n_clicks,portefolios,value,start_date,end_date):
     myfile= open("runoxwin1.bat","w")
     myfile.writelines(list_of_line)
     myfile.close()
-    csv_files = glob.glob(os.path.join("C:/Users/thoma/OneDrive/Bureau/projet/ox/betas1", "*.csv"))
+    csv_files = glob.glob(os.path.join("/home/thomas973/mysite/ox/betas1", "*.csv"))
     latest_file= max(csv_files,key= os.path.getmtime)
     df= pd.read_csv(latest_file).drop("Unnamed: 0",axis=1)
     if n_clicks>0:
@@ -1128,7 +1137,7 @@ def displayclick_5factors(n_clicks,portefolios,value,start_date,end_date):
     prevent_initial_call=True)
     
 def update_graph_5factors(n_clicks, value):
-     csv_files = glob.glob(os.path.join("C:/Users/thoma/OneDrive/Bureau/projet/ox/betas1", "*.csv"))
+     csv_files = glob.glob(os.path.join("/home/thomas973/mysite/ox/betas1", "*.csv"))
      latest_file= max(csv_files,key= os.path.getmtime)
      df= pd.read_csv(latest_file).drop("Unnamed: 0",axis=1)
      if n_clicks>0:
@@ -1309,7 +1318,7 @@ Output("container-button-table_5factors","children"),
 Input("table_5factors","n_clicks"))
 
 def make_table_5factors(n_clicks):
-    csv_files = glob.glob(os.path.join("C:/Users/thoma/OneDrive/Bureau/projet/ox/betas1", "*.csv"))
+    csv_files = glob.glob(os.path.join("/home/thomas973/mysite/ox/betas1", "*.csv"))
     latest_file= max(csv_files,key= os.path.getmtime)
     df= round(pd.read_csv(latest_file).drop("Unnamed: 0",axis=1),5)  
     if n_clicks>0:
@@ -1318,7 +1327,9 @@ def make_table_5factors(n_clicks):
                                   data= df.to_dict('records'),
                                   page_size=10,
                                   ))
-        
+# =============================================================================
+# Callbacks for the Rolling OLS method for the 3 factors and value weighted.
+# =============================================================================        
 @app.callback(
     Output("container-graph-3factors_vw","children"),
     Input("3factors_vw","n_clicks"),
@@ -1427,7 +1438,9 @@ def make_graphics_vw(n_clicks, Portfolios_vw_value,dropdown_value, year, window_
                  dcc.Graph(figure=fig3),
                  dcc.Graph(figure=fig4))
              
-         
+# =============================================================================
+# Callbacks for the Rolling OLS method for the 3 factors and equal weighted
+# =============================================================================         
 @app.callback(
     Output("container-graph-3factors_ew","children"),
     Input("3factors_ew","n_clicks"),
@@ -1533,7 +1546,10 @@ def updategraph_ew(n_clicks,Portfolios_ew_value,dropdown_value, year, window_ew)
                  dcc.Graph(figure=fig2),
                  dcc.Graph(figure=fig3),
                  dcc.Graph(figure=fig4))
-        
+
+# =============================================================================
+# Callbacks for the RollingOLS method for the 5 factors and value weighted
+# =============================================================================   
 @app.callback(
      Output("dropdown_5_factors_vw","value"),
      Input('all-or-none',"value"),
@@ -1544,7 +1560,7 @@ def select_all_none(all_selected, options):
     all_or_none = [options["value"] for options in options if all_selected]
     return all_or_none
    
-        
+     
 @app.callback(
     Output("container-graph-rol-5factors_vw","children"),
     Input("5factors_vw","n_clicks"),
@@ -1915,6 +1931,9 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                    dcc.Graph(figure=fig4),
                    dcc.Graph(figure=fig5),
                    dcc.Graph(figure=fig6))
+# =============================================================================
+# Callbacks for the RollingOLS method for the 5 factors and equal weighted
+# =============================================================================         
 @app.callback(
      Output("dropdown_5_factors_ew","value"),
      Input('checklist_5factors_ew',"value"),
