@@ -4,6 +4,7 @@ Created on Fri Jan 14 11:19:23 2022
 
 @author: thomas
 """
+
 import dash
 from dash import dcc, html
 from dash import dash_table
@@ -14,13 +15,13 @@ from datetime import datetime as dt
 from statsmodels.regression.rolling import RollingOLS
 from statsmodels.tools import add_constant
 from datetime import date
-from urllib import request 
-from zipfile import ZipFile 
+from urllib import request
+from zipfile import ZipFile
 import os
 import sys
 import io
 import base64
-import datetime 
+import datetime
 import subprocess
 import pandas as pd
 import glob
@@ -29,30 +30,30 @@ import plotly.express as px
 import statsmodels.formula.api as smf
 import plotly.graph_objs as go
 
-os.chdir('C:/Users/thoma/Desktop/projet/')
+os.chdir('/home/thomas973/mysite/')
 parent_path = os.path.dirname('task/')
 sys.path.append(parent_path)
-from app_utils import ( 
-    get_data_table_description, 
+from app_utils import (
+    get_data_table_description,
     get_team_table_description,
     resume_project)
 
 # =============================================================================
 # Téléchargement des bases de données:
-# =============================================================================   
-    
+# =============================================================================
+
 # Fama_French 3 and 5 Factors[daily]:
-    
+
 ff_factors= pd.read_csv("https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip",
                skiprows = 3,index_col=0).drop("Copyright 2022 Kenneth R. French",axis=0)
 ff_factors= round(ff_factors,3)
 
 ff_factors_5= pd.read_csv("https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_5_Factors_2x3_daily_CSV.zip",skiprows=3,index_col=0)
-                        
-    
+
+
 # 12 Industry Portfolios[daily]:
 
-    
+
 Industry_12= pd.read_csv("https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/12_Industry_Portfolios_daily_CSV.zip",
                      skiprows = 9,index_col=0,sep='\s*,\s*', engine='python').drop("Copyright 2022 Kenneth R. French",axis=0)
 
@@ -71,13 +72,13 @@ Industry_12=Industry_12.apply(pd.to_numeric,errors='coerce')
 
 
 
-Firstpart=Industry_12[0:round(Industry_12.shape[0]/2)-1].rename(columns= {'NoDur':'NoDur_vw',"Durbl":"Durbl_vw","Manuf":"Manuf_vw", 
+Firstpart=Industry_12[0:round(Industry_12.shape[0]/2)-1].rename(columns= {'NoDur':'NoDur_vw',"Durbl":"Durbl_vw","Manuf":"Manuf_vw",
                                               "Enrgy":"Enrgy_vw","Chems":"Chems_vw","BusEq":"BusEq_vw",
                                              "Telcm":"Telcm_vw","Utils":"Utils_vw","Shops":"Shops_vw","Hlth":"Hlth_vw"
                                               ,"Money":"Money_vw","Other":"Other_vw"})
 
 
-Secondpart=Industry_12[round(Industry_12.shape[0]/2)+1:].rename(columns={'NoDur':'NoDur_ew',"Durbl":"Durbl_ew","Manuf":"Manuf_ew", 
+Secondpart=Industry_12[round(Industry_12.shape[0]/2)+1:].rename(columns={'NoDur':'NoDur_ew',"Durbl":"Durbl_ew","Manuf":"Manuf_ew",
                                               "Enrgy":"Enrgy_ew","Chems":"Chems_ew","BusEq":"BusEq_ew",
                                              "Telcm":"Telcm_ew","Utils":"Utils_ew","Shops":"Shops_ew","Hlth":"Hlth_ew"
                                              ,"Money":"Money_ew","Other":"Other_ew"})
@@ -151,7 +152,7 @@ concatDev["index"]= pd.to_datetime(concatDev["index"]).dt.date
 concatwithDev=pd.concat([ff_factors,Firstpart, Secondpart,déviations_vw, déviations_ew],axis=1).reset_index()
 concatwithDev["index"]= pd.to_datetime(concatwithDev["index"]).dt.date
 concatwithDev=concatwithDev.rename(columns={'index':'date','Mkt-RF':'Mkt'})
-concatwithDev.to_csv("C:/Users/thoma/Desktop/projet/ox/data/concat.csv ")
+concatwithDev.to_csv("/home/thomas973/mysite/ox/data/concat.csv ")
 
 
 concat5factors= pd.concat([ff_factors_5.reset_index(drop=True),Industry_12_vw_1963_2021.reset_index(),Industry_12_ew_1963_2021.reset_index(drop=True)],axis=1)
@@ -189,7 +190,7 @@ concat5factorswithMkt["devShops_ew"]=concat5factors["Shops_ew"] - concat5factors
 concat5factorswithMkt["devMoney_ew"]=concat5factors["Money_ew"] - concat5factors["RF"]
 concat5factorswithMkt["devOther_ew"]=concat5factors["Other_ew"] - concat5factors["RF"]
 concat5factorswithMkt= round(concat5factorswithMkt,3)
-concat5factorswithMkt.to_csv("C:/Users/thoma/Desktop/projet/ox/data/concat5factors.csv")
+concat5factorswithMkt.to_csv("/home/thomas973/mysite/ox/data/concat5factors.csv")
 
 
 # =============================================================================
@@ -362,7 +363,7 @@ dropdown_3factors_vw=dcc.Dropdown(
     multi= True,
     placeholder="Select a factor...",
     className= 'dropdown_factors')
-    
+
 
 dropdown_3factors_ew=dcc.Dropdown(
     id= 'dropdown_ew',
@@ -372,7 +373,7 @@ dropdown_3factors_ew=dcc.Dropdown(
     multi= True,
     placeholder="Select a factor...",
     className= 'dropdown_factors')
-    
+
 
 dropdown_5factors_vw=dcc.Dropdown(
     id= 'dropdown_5_factors_vw',
@@ -449,7 +450,7 @@ rangeSlider_ew= dcc.RangeSlider(id='my_rangeslider_ew',
                         2000: {"label": "2000"},
                         2010: {"label": "2010"},
                         2020: {"label": "2020"}}),
-                
+
 
 
 rangeSlider_5factors_vw= dcc.RangeSlider(id='my_rangeslider_5factors_vw',
@@ -479,7 +480,7 @@ rangeSlider_5factors_ew= dcc.RangeSlider(id='my_rangeslider_5factors_ew',
 
 # =============================================================================
 # Boards of linear regressions:
-# =============================================================================    
+# =============================================================================
 
 NoDur={"Intercept":res.intercept_, "Mkt-RF": res.coef_[0], "SMB":res.coef_[1],"HML":res.coef_[2]}
 Durbl= {"Intercept":Durbl_vw.intercept_, "Mkt-RF": Durbl_vw.coef_[0], "SMB":Durbl_vw.coef_[1],"HML":Durbl_vw.coef_[2]}
@@ -512,7 +513,7 @@ Hlth= {"Intercept":Hlth_ew.intercept_, "Mkt-RF": Hlth_ew.coef_[0], "SMB":Hlth_ew
 Money= {"Intercept":Money_ew.intercept_, "Mkt-RF": Money_ew.coef_[0], "SMB":Money_ew.coef_[1],"HML":Money_ew.coef_[2]}
 Other= {"Intercept":Other_ew.intercept_, "Mkt-RF": Other_ew.coef_[0], "SMB":Other_ew.coef_[1],"HML":Other_ew.coef_[2]}
 
-                               
+
 
 df_ew= pd.DataFrame({"NoDur":NoDur,"Dubl":Durbl,"Manuf":Manuf,"Enrgy":Enrgy,"Chems":Chems,"BusEq":BusEq,
                      "Telcm":Telcm,"Utils":Utils,"Shops":Shops,"Hlth":Hlth,"Money":Money,'Other':Other}).reset_index()
@@ -588,12 +589,12 @@ tab=tab.replace(tab.index,concat.date[10420:])
 
 # =============================================================================
 # Start of the code:
-# ============================================================================= 
+# =============================================================================
 
 app = dash.Dash(__name__,
                 meta_tags=[{"name": "viewport", "content": "width=device-width"}],
                 prevent_initial_callbacks=True,suppress_callback_exceptions=True)
-                
+
 app.layout=(html.Div(
         className="page",
         children=[
@@ -602,16 +603,18 @@ app.layout=(html.Div(
              html.Img(src="https://www.amse-aixmarseille.fr/sites/default/files/amse_logo.svg", style= {"width":"10%"},id="top"),
              html.A(html.Button("Learn more", className="learn-more-button"),
                     href="https://www.amse-aixmarseille.fr/en/",target="_blank"),
-                    
-             
-            
+
+
+
     html.H1(children='Project about Kenneth French data library',style={"text-align":"center"}),
     html.Br(),
         html.A('Concatenation', href='#concatenation',className="Nav"),
         html.A('OLS Regression', href="#OLS Regression", className='Nav'),
         html.A('Rolling OLS',href="#rolling OLS", className="Nav"),
-        html.A('State space', href='#state space', className='Nav')]),
-        
+        html.A('State space', href='#state space', className='Nav'),
+        html.A('Glossary',href='#glossary',className='Nav'),
+        html.P("Last update: August 2022")]),
+
         html.Div(
         className= "product",
         style={"border-radius":"10px","background":"red" },
@@ -619,13 +622,13 @@ app.layout=(html.Div(
         html.H3("Project overview"),
         html.P(resume_project(), style={"color": "white"}, className="text")
         ]),
-    
+
      html.Div(className="data table",
              children=[
    html.H4('Descriptions of the datasets', className="subtitle"),
    html.Div(
              children=[
-                    html.Div(
+                    html.Div(className="data_table",
                         children=[
                            get_data_table_description(),
                             ]
@@ -634,34 +637,36 @@ app.layout=(html.Div(
     html.Div(className="sub-page",
     children=[
     html.H4("Members"),
-    html.Div(style= {"width":"48%"},
+    html.Div(style= {"width":"35%"},
              children=[
                  html.Div(
                         children=[
                             get_team_table_description()]
-                            
+
                         )])]),
     html.Div(className= "TOC",
              children=[
     html.H4(children='Table of content', id="toc"),
-    html.P(children='Step 1: Download automatically datasets from Kenneth French\'s website'),
-    html.P(children='Step 2: Clean the data and compute the market risk premium'),
-    html.P(children="Step 3: Allow the user to select one of the 12 portfolios,the 3 factors,equal weighted or value weighted"),
-    html.P("and plot the estimated coeficients all along the period and the estimated coeficients on rolling window",style={"line-height":"20%"}),
-    html.P(children="Step 4: estimate again the same model using State Space method, thanks to constants and betas estimated with random walks")   
+    html.P("Step 1: Download automatically datasets from Kenneth French\'s website."),
+    html.P("Step 2: Clean the data (remove the first and the last lines of each dataset)"),
+    html.P("Step 3: Separate the 12 industry portfolios into two categories: equal weighted (ew) or value werighted (vw))"),
+    html.P("Step 4: Compute the market risk premium (the deviations with respect to RF)"),
+    html.P("Step 5: Allow the user to select one of the 12 portfolios (equal weighted or value weighted) and the 3 factors"),
+    html.P("Step 6: Plot the estimated coeficients all along the period and the estimated coeficients on rolling window."),
+    html.P("Step 7: Estimate again the same model using state space method, thanks to constants and betas estimated with random walks."),
     ]),
     html.Div(className= "Producer",
              children=[
     html.H4("Kenneth French Data Library:", id="producer"),
     html.Img(src= app.get_asset_url("website K.F.png"),style={"width":"30%"}),
-    html.P("Kenneth French is an American economist born in 1954.", className='text'),
-    html.P(" With Nobel 2013 Eugene Fama, he developped the Fama-French model with 3 factors.",className='text'),
+    html.P("Kenneth French is an American economist born in 1954,he is teacher of finance at the Tuck of Business.", className='text'),
+    html.P(" With Nobel 2013 Eugene Fama, he developped the Fama-French model with 3 factors, composed of daily, monthly, weekly and annual returns.",className='text'),
     html.P('The website contains the model of Fama-French with 3 and 5 factors', className='text'),
-    html.P("several portfolios and industry portfolios.",className='text'),
+    html.P("several portfolios and industry portfolios,composed of daily, monthly and annual returns.",className='text'),
     html.P("This website updates once a month.",className='text'),
     html.A('Kenneth French data library', href='https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html',target="_blank"),
     ]),
-    
+
 # =============================================================================
 #     Affichage des datasets concaténnés :
 # =============================================================================
@@ -671,8 +676,8 @@ app.layout=(html.Div(
              html.H2("Concatenation",id= "concatenation",className= "section_concatenation"),
              dbc.NavLink("Back to top",href="#concatenation", className="Link"),
     html.Div(className="boards",
-             children=[ 
-                 
+             children=[
+
                  html.H4('Concatenation of the 3 factors[daily] and the 12 industry portfolios[daily]'),
                  html.Div(dash_table.DataTable(
                      id='concat',
@@ -680,7 +685,7 @@ app.layout=(html.Div(
                      data=concat.to_dict('records'),
                      page_size=6,
                      style_table={'overflowX': 'auto'})),
-                 
+
                   html.H4('Concatenation of the 5 factors[daily] and the 12 industry portfolios[daily]'),
       html.Div(dash_table.DataTable(
           id="Industry_12_portfolios",
@@ -688,37 +693,37 @@ app.layout=(html.Div(
           data=concat5factors.to_dict('records'),
           page_size=6,
           style_table={'overflowX': 'auto'})),
-                 
+
                   html.H4('Concatenation of the 3 factors[daily], the 12 industry portfolios[daily] and the deviations with respect to RF for the State Space method'),
-                  html.Div(dash_table.DataTable(	
+                  html.Div(dash_table.DataTable(
          id='concatwithDev',
          columns=[{'name': i, 'id':i} for i in concatwithDev.columns],
          data= concatwithDev.to_dict('records'),
          page_size=6,
          style_table={'overflowX': 'auto'})),
-                  
+
                   html.H4('Concatenation of the 5 factors[daily], the 12 industry portfolios and the deviations with respect to RF for the State Space method'),
-                  html.Div(dash_table.DataTable(	
+                  html.Div(dash_table.DataTable(
                       id='concat5factorswithDev',
                       columns=[{'name': i, 'id':i} for i in concat5factorswithMkt.columns],
                       data= concat5factorswithMkt.to_dict('records'),
                       page_size=6,
                       style_table={'overflowX': 'auto'})),
-      
+
      html.Br(),
-    
-     
+
+
      ]),
-              
+
      html.Br(),
      html.H2('OLS Regression', id='OLS Regression'),
-   
-     dbc.NavLink("Back to top", href="#top",external_link=True, className="Link"),
-     dbc.NavLink('Concatenation',href="#concatenation",external_link=True, style={"margin-left":"1cm"}),
-      
+
+     html.A("Back to top", href="#top", className="Link"),
+     html.A('Concatenation',href="#concatenation", style={"margin-left":"1cm"}),
+
      html.Div(className="boards",
      children=[
-         
+
          html.H4("Summary of the results of the regression of value weighted on the 3 factors:"),
          html.Div(dash_table.DataTable(
              id='OLSReg_vw',
@@ -730,38 +735,37 @@ app.layout=(html.Div(
          html.Br(),
          html.Br(),
          html.H4("Summary of the results of the regression of equal weighted on the 3 factors:"),
-         html.Div(dash_table.DataTable(	
+         html.Div(dash_table.DataTable(
              id='OLSReg_ew',
              columns=[{'name': i, 'id':i} for i in df_ew.columns],
              data= df_ew.to_dict('records'),
              style_table={'overflowX': 'auto'})),
-         
+
          html.H4("Summary of the results of the regression of value weighted on the 5 factors:"),
-         html.Div(dash_table.DataTable(	
+         html.Div(dash_table.DataTable(
              id='OLSReg5factors_vw',
              columns=[{'name': i, 'id':i} for i in df5factors_vw.columns],
              data= df5factors_vw.to_dict('records'),
              style_table={'overflowX': 'auto'})),
-         
+
          html.H4("Summary of the results of the regression of equal weighted on the 5 factors:"),
-         html.Div(dash_table.DataTable(	
+         html.Div(dash_table.DataTable(
              id='OLSReg5factors_ew',
              columns=[{'name': i, 'id':i} for i in df5factors_ew.columns],
              data= df5factors_ew.to_dict('records'),
              style_table={'overflowX': 'auto'})),
-         
-         
-         
+
+
+
          ]),
-     
-     
+
+
      html.Br(),
      html.H2("Rolling OLS", id="rolling OLS"),
-     dbc.Nav([
-     dbc.NavLink("Back to top",href="#rolling OLS", className="Link"),
-     dbc.NavLink("OLS Regression",href="#OLS Regression",external_link=True, className= "Link"),
-     dbc.NavLink("Concatenation",href="#concatenation",external_link=True, className= "Link")
-     ]),
+     html.A("Back to top",href="#top", className="Link"),
+     html.A("OLS Regression",href="#OLS Regression",className= "Link"),
+     html.A("Concatenation",href="#concatenation", className= "Link"),
+
      html.Br(),
      html.H4('Rolling OLS for 3 factors:', className= "title_tab"),
      html.Div(className="Tabs",
@@ -777,10 +781,10 @@ app.layout=(html.Div(
                   html.Div(rangeSlider_vw,),
                   html.H4("Select a window:"),
                   dcc.Slider(id= "Window_vw",
-                             min=0, max=400, value= 50,marks= {i*10: str(i*10) for i in range(0,41)}, 
+                             min=0, max=400, value= 50,marks= {i*10: str(i*10) for i in range(0,41)},
                              className="windowsilder_vw"),
               ]),
-              
+
           dcc.Tab(label= 'Equal Weighted', children=[
               html.Div(dropdown_portfolios_3factors_ew),
               html.Div(dropdown_3factors_ew),
@@ -794,7 +798,7 @@ app.layout=(html.Div(
                          min=0, max=400, value= 50,marks= {i*10: str(i*10) for i in range(0,41)})
            ])
               ])
-             
+
          ]),
      html.Br(),
      html.Br(),
@@ -820,7 +824,7 @@ app.layout=(html.Div(
               dcc.Slider(id= "Window_5factors_vw",
                          min=0, max=400, value= 50,marks= {i*10: str(i*10) for i in range(0,41)})
               ]),
-              
+
           dcc.Tab(label= 'Equal Weighted', children=[
               html.Div(dropdown_portfolios_5factors_ew),
               html.Div(dropdown_5factors_ew),
@@ -840,19 +844,18 @@ app.layout=(html.Div(
                           min=0, max=400, value= 50,marks= {i*10: str(i*10) for i in range(0,41)})
            ])
               ])
-             
+
          ]),
       html.Br(),
       html.Br(),
       html.H2("State Space", id="state space"),
-dbc.Nav([
-dbc.NavLink("Back to top",href="#state space", className="Link"),
-dbc.NavLink("Rolling OLS",href= "#rolling OLS", external_link=True,className="Link"),
-dbc.NavLink("OLS Regression",href= "#OLS Regression", external_link=True, className="Link"),
-dbc.NavLink("Concatenation",href= "#concatenation", external_link=True,className="Link")
-]),
+html.A("Back to top",href="#top", className="Link"),
+html.A("Rolling OLS",href= "#rolling OLS",className="Link"),
+html.A("OLS Regression",href= "#OLS Regression",className="Link"),
+html.A("Concatenation",href= "#concatenation",className="Link"),
+
               html.Div(className="Tabs_state_space", children=[
-                         dcc.Tabs([                    
+                         dcc.Tabs([
                              dcc.Tab(label= "3 factors", children=[
                                   dcc.Dropdown(id= "dropdown1SP",
                           options= [{"label": i, "value": i} for i in pd.concat([Firstpart, Secondpart]).columns],
@@ -871,7 +874,7 @@ dbc.NavLink("Concatenation",href= "#concatenation", external_link=True,className
                           multi= False,
                           placeholder="Select a factors...",
                           className= "dropdown_SP_factors"),
-                          
+
              dcc.Dropdown(id= 'start_date',
                           options=[{'label':i, "value":i} for i in concat.date],
                           multi= False,
@@ -889,7 +892,7 @@ dbc.NavLink("Concatenation",href= "#concatenation", external_link=True,className
              html.Div(id= "container-button-table"),
              html.Div(id="container-graph-ox"),
                                  ]),
-                             
+
                              dcc.Tab(label='5 factors', children=[
                                  dcc.Dropdown(id= "dropdown1SP_5factors",
                                               options= [{"label": i, "value": i} for i in pd.concat([Firstpart, Secondpart]).columns],
@@ -910,12 +913,12 @@ dbc.NavLink("Concatenation",href= "#concatenation", external_link=True,className
                                                        {"label":"{SMB,RMW}","value":"{SMB,RMW}"},
                                                        {"label":"{SMB,CMA}","value":"{SMB,CMA}"},
                                                        {"label":"{HML,RMW}","value":"{HML,RMW}"},
-                                                       {"label":"{HML,CMA}","value":"{HML,CMA}"},                                                       
+                                                       {"label":"{HML,CMA}","value":"{HML,CMA}"},
                                                        {"label":"{RMW,CMA}","value":"{RMW,CMA}"},
                                                        {"label":"{Mkt,SMB,HML}","value":"{Mkt,SMB,HML}"},
                                                        {"label":"{Mkt,SMB,HML,RMW}","value":"{Mkt,SMB,HML,RMW}"},
-                                                       {"label":"{Mkt,SMB,HML,CMA}","value":"{Mkt,SMB,HML,CMA}"},                                                       
-                                                       {"label":"{Mkt,SMB,HML,RMW,CMA}","value":"{Mkt,SMB,HML,RMW,CMA}"}),                                
+                                                       {"label":"{Mkt,SMB,HML,CMA}","value":"{Mkt,SMB,HML,CMA}"},
+                                                       {"label":"{Mkt,SMB,HML,RMW,CMA}","value":"{Mkt,SMB,HML,RMW,CMA}"}),
                                               multi= False,
                                               placeholder="Select a factors...",
                                               className= "dropdown_SP_factors"),
@@ -935,8 +938,8 @@ dbc.NavLink("Concatenation",href= "#concatenation", external_link=True,className
                                  html.Div(id= "container-button-table_5factors"),
                                  html.Div(id='container-button_5factors'),
                                  html.Div(id="container-graph_5factors")
-                                 
-                                                                              
+
+
                                      ])
                                  ])
                              ])
@@ -947,19 +950,26 @@ dbc.NavLink("Concatenation",href= "#concatenation", external_link=True,className
         html.A('OLS Regression', href="#OLS Regression", className='Link'),
         html.A('Rolling OLS',href="#rolling OLS", className="Link"),
         html.A('State space', href='#state space', className='Link'),
+
         html.H4("Fama/French 3 factors[daily]",className="subtitle_glossary"),
         html.Div(className="Descriptions",children=[
             html.P("Mkt-RF:the market risk premium"),
             html.P("SMB(Small Minus Big):the average return on the three small portfolios minus the average return on the three big portfolios"),
             html.P("HML(High Minus Low): the average return on the two value portfolios minus the average return on the two growth portfolios"),
-            html.P("RF:the risk free rate; rate of return of an investissment without risk of loss.")]),
+            html.P("RF:the risk free rate; rate of return of an investissment without risk of loss."),
+            html.P("OLS Regression used: y=β0+β1X1+β2X2+β3X3+u"),
+            html.P("CAPM model: E(ra) = RF + βa(E(rm) − RF" )]),
         html.Br(),
+
         html.H4("Fama/French 5 factors (2x3)[daily]",className="subtitle_glossary"),
         html.Div(className="Descriptions",children=[
             html.P("SMB (Small Minus Big): the average return on the nine small stock portfolios minus the average return on the nine big stock portfolios"),
             html.P("HML (High Minus Low): the average return on the two value portfolios minus the average return on the two growth portfolios"),
             html.P("RMW (Robust Minus Weak): the average return on the two robust operating profitability portfolios minus the average return on the two weak operating profitability portfolios"),
-            html.P("CMA (Conservative Minus Aggressive): the average return on the two conservative investment portfolios minus the average return on the two aggressive investment portfolios")]),
+            html.P("CMA (Conservative Minus Aggressive): the average return on the two conservative investment portfolios minus the average return on the two aggressive investment portfolios"),
+            html.P("Formula of the 5 factors model: Rt= RF+β1(Mkt-RF)+β2(SMB)+β3(HML)+β4(RMW)+β5(CMA)+u"),
+            html.P("OLS Regression used:y=β+β1X1+β2X2+β4X4+β5X5+u")]),
+
         html.H4("12 Industry Portfolios[daily]",className="subtitle_glossary"),
         html.Div(className="Descriptions",children=[
             html.P("NoDur:consumer not durables"),
@@ -974,17 +984,13 @@ dbc.NavLink("Concatenation",href= "#concatenation", external_link=True,className
             html.P("Hilth:healthcare goods"),
             html.P("Money:financial goods"),
             html.P("Other:others goods and services like transports, hotels, constructions...")]),
-            html.P("© Thomas Mille - all rights reserved", style={"text-align":"center"}),
+            html.Div(className="border",children=[
+            html.P("© Thomas Mille - February 2022", style={"text-align":"center"}),
             html.A(html.Img(src="/assets/LinkedIn-logo.png", style={"width":"2cm"}),href="https://www.linkedin.com/in/thomas-mill%C3%A9-baabb01ba/",target="_blank", title="Contact me"),
             html.A(html.Img(src="/assets/Github.png",style={"width":"1cm"}), href="https://github.com/cayenne97/projet-stage", target="_blank", title="You can see my code here"),
-
-
-dbc.Nav([
-        dbc.NavLink('Go to top',href="#top",external_link=True,className="top")])
-
-        
+            html.A('Go to top',href="#top",className="top")])
 ]))
-     
+
 # =============================================================================
 # Callbacks for the State Space method
 # =============================================================================
@@ -1000,9 +1006,9 @@ dbc.Nav([
     State("start_date",'value'),
     State("end_date",'value'),
     prevent_initial_call=True
-    
+
     )
-    
+
 def displayclick(n_clicks,portefolios,value,start_date,end_date):
     os.chdir('/home/thomas973/mysite/ox')
     myfile= open("runoxwin.bat","r")
@@ -1023,11 +1029,11 @@ def displayclick(n_clicks,portefolios,value,start_date,end_date):
                os.remove(max(csv_files,key= os.path.getmtime)))
 # =============================================================================
 # Create the table with the data from the betas files
-# =============================================================================  
+# =============================================================================
 @app.callback(
     Output("container-button-table","children"),
     Input("table","n_clicks"))
-def make_table_3_factors(n_clicks): 
+def make_table_3_factors(n_clicks):
     csv_files = glob.glob(os.path.join("/home/thomas973/mysite/ox/betas", "*.csv"))
     latest_file= max(csv_files,key= os.path.getmtime)
     df= round(pd.read_csv(latest_file).drop("Unnamed: 0",axis=1),5)
@@ -1036,16 +1042,16 @@ def make_table_3_factors(n_clicks):
                                   columns=[{'name':i,"id":i} for i in df.columns],
                                   data= df.to_dict('records'),
                                   page_size=10)
-                                  
+
 # =============================================================================
 # Plotting the graphs from the betas files
-# =============================================================================                       
+# =============================================================================
 @app.callback(
     Output("container-graph-ox","children"),
     State('dropdown2SP','value'),
     Input("graph","n_clicks"),
     prevent_initial_call=True
-    
+
     )
 def update_graph(value,n_clicks):
      csv_files = glob.glob(os.path.join("/home/thomas973/mysite/ox/betas", "*.csv"))
@@ -1061,7 +1067,7 @@ def update_graph(value,n_clicks):
                     dcc.Graph(figure= SFF2),
                     dcc.Graph(figure=SFF3),
                     dcc.Graph(figure=SFF4))
-                   
+
         if value=="{Mkt,SMB}":
             SFF1= px.line(df, x="Date",y= "Constant")
             SFF2= px.line(df, x="Date",y= "Mkt")
@@ -1078,7 +1084,7 @@ def update_graph(value,n_clicks):
                     dcc.Graph(figure=SFF4))
         if value=="{SMB,HML}":
             SFF1= px.line(df, x="Date",y= "Constant")
-            SFF3= px.line(df, x="Date",y= "SMB") 
+            SFF3= px.line(df, x="Date",y= "SMB")
             SFF4= px.line(df, x="Date",y= "HML")
             return (dcc.Graph(figure= SFF1),
                     dcc.Graph(figure=SFF3),
@@ -1093,7 +1099,7 @@ def update_graph(value,n_clicks):
             SFF3= px.line(df, x="Date",y= "SMB")
             return (dcc.Graph(figure= SFF1),
                     dcc.Graph(figure=SFF3))
-         
+
         if value=="{HML}":
              SFF1= px.line(df, x="Date",y= "Constant")
              SFF4= px.line(df, x="Date",y= "HML")
@@ -1108,8 +1114,8 @@ def update_graph(value,n_clicks):
     State("start_date_5factors",'value'),
     State("end_date_5factors",'value'),
     prevent_initial_call=True)
-    
-    
+
+
 def displayclick_5factors(n_clicks,portefolios,value,start_date,end_date):
     os.chdir('/home/thomas973/mysite/ox')
     myfile= open("runoxwin1.bat","r")
@@ -1127,15 +1133,15 @@ def displayclick_5factors(n_clicks,portefolios,value,start_date,end_date):
     if n_clicks>0:
         return (os.startfile("runoxwin1.bat"),
                 os.remove(max(csv_files,key= os.path.getmtime)))
-                
-               
+
+
 
 @app.callback(
     Output("container-graph_5factors","children"),
     Input("graph_5factors","n_clicks"),
     State('dropdown2SP_5factors','value'),
     prevent_initial_call=True)
-    
+
 def update_graph_5factors(n_clicks, value):
      csv_files = glob.glob(os.path.join("/home/thomas973/mysite/ox/betas1", "*.csv"))
      latest_file= max(csv_files,key= os.path.getmtime)
@@ -1161,7 +1167,7 @@ def update_graph_5factors(n_clicks, value):
                      dcc.Graph(figure=SFF3),
                      dcc.Graph(figure=SFF4),
                      dcc.Graph(figure=SFF5))
-         
+
          if value=="{Mkt,SMB,HML,CMA}":
              SFF1= px.line(df, x="Date",y= "Constant")
              SFF2= px.line(df, x="Date",y= "Mkt")
@@ -1173,7 +1179,7 @@ def update_graph_5factors(n_clicks, value):
                      dcc.Graph(figure=SFF3),
                      dcc.Graph(figure=SFF4),
                      dcc.Graph(figure=SFF6))
-         
+
          if value=="{Mkt,SMB,HML,RMW,CMA}":
              SFF1= px.line(df, x="Date",y= "Constant")
              SFF2= px.line(df, x="Date",y= "Mkt")
@@ -1187,7 +1193,7 @@ def update_graph_5factors(n_clicks, value):
                      dcc.Graph(figure=SFF4),
                      dcc.Graph(figure=SFF5),
                      dcc.Graph(figure=SFF6))
-                   
+
          if value=="{Mkt,SMB}":
              SFF1= px.line(df, x="Date",y= "Constant")
              SFF2= px.line(df, x="Date",y= "Mkt")
@@ -1195,7 +1201,7 @@ def update_graph_5factors(n_clicks, value):
              return (dcc.Graph(figure= SFF1),
                      dcc.Graph(figure= SFF2),
                      dcc.Graph(figure=SFF3))
-         
+
          if value=="{Mkt,HML}":
              SFF1= px.line(df, x="Date",y= "Constant")
              SFF2= px.line(df, x="Date",y= "Mkt")
@@ -1203,7 +1209,7 @@ def update_graph_5factors(n_clicks, value):
              return (dcc.Graph(figure= SFF1),
                      dcc.Graph(figure= SFF2),
                      dcc.Graph(figure=SFF4))
-         
+
          if value=="{Mkt,RMW}":
              SFF1= px.line(df, x="Date",y= "Constant")
              SFF2= px.line(df, x="Date",y= "Mkt")
@@ -1211,7 +1217,7 @@ def update_graph_5factors(n_clicks, value):
              return (dcc.Graph(figure= SFF1),
                      dcc.Graph(figure= SFF2),
                      dcc.Graph(figure=SFF5))
-         
+
          if value=="{Mkt,CMA}":
              SFF1= px.line(df, x="Date",y= "Constant")
              SFF2= px.line(df, x="Date",y= "Mkt")
@@ -1219,84 +1225,84 @@ def update_graph_5factors(n_clicks, value):
              return (dcc.Graph(figure= SFF1),
                      dcc.Graph(figure= SFF2),
                      dcc.Graph(figure=SFF6))
-                             
+
          if value=="{SMB,HML}":
              SFF1= px.line(df, x="Date",y= "Constant")
-             SFF3= px.line(df, x="Date",y= "SMB") 
+             SFF3= px.line(df, x="Date",y= "SMB")
              SFF4= px.line(df, x="Date",y= "HML")
              return (dcc.Graph(figure= SFF1),
                      dcc.Graph(figure=SFF3),
                      dcc.Graph(figure=SFF4))
-         
+
          if value=="{SMB,RMW}":
              SFF1= px.line(df, x="Date",y= "Constant")
-             SFF3= px.line(df, x="Date",y= "SMB") 
+             SFF3= px.line(df, x="Date",y= "SMB")
              SFF4= px.line(df, x="Date",y= "RMW")
              return (dcc.Graph(figure= SFF1),
                      dcc.Graph(figure=SFF3),
                      dcc.Graph(figure=SFF4))
-         
+
          if value=="{SMB,CMA}":
              SFF1= px.line(df, x="Date",y= "Constant")
-             SFF3= px.line(df, x="Date",y= "SMB") 
+             SFF3= px.line(df, x="Date",y= "SMB")
              SFF4= px.line(df, x="Date",y= "CMA")
              return (dcc.Graph(figure= SFF1),
                      dcc.Graph(figure=SFF3),
                      dcc.Graph(figure=SFF4))
-         
+
          if value=="{HML,Mkt}":
              SFF1= px.line(df, x="Date",y= "Constant")
-             SFF4= px.line(df, x="Date",y= "HML") 
+             SFF4= px.line(df, x="Date",y= "HML")
              SFF2= px.line(df, x="Date",y= "Mkt")
              return (dcc.Graph(figure= SFF1),
                      dcc.Graph(figure=SFF4),
                      dcc.Graph(figure=SFF2))
-         
+
          if value=="{HML,SMB}":
              SFF1= px.line(df, x="Date",y= "Constant")
-             SFF4= px.line(df, x="Date",y= "HML") 
+             SFF4= px.line(df, x="Date",y= "HML")
              SFF3= px.line(df, x="Date",y= "SMB")
              return (dcc.Graph(figure= SFF1),
                      dcc.Graph(figure=SFF4),
                      dcc.Graph(figure=SFF3))
-         
+
          if value=="{HML,CMA}":
              SFF1= px.line(df, x="Date",y= "Constant")
-             SFF4= px.line(df, x="Date",y= "HML") 
+             SFF4= px.line(df, x="Date",y= "HML")
              SFF6= px.line(df, x="Date",y= "CMA")
              return (dcc.Graph(figure= SFF1),
                      dcc.Graph(figure=SFF4),
                      dcc.Graph(figure=SFF6))
-         
+
          if value=="{HML,RMW}":
              SFF1= px.line(df, x="Date",y= "Constant")
-             SFF4= px.line(df, x="Date",y= "HML") 
+             SFF4= px.line(df, x="Date",y= "HML")
              SFF5= px.line(df, x="Date",y= "RMW")
              return (dcc.Graph(figure= SFF1),
                      dcc.Graph(figure=SFF4),
                      dcc.Graph(figure=SFF5))
-         
+
          if value=="{RMW,CMA}":
              SFF1= px.line(df, x="Date",y= "Constant")
-             SFF5= px.line(df, x="Date",y= "RMW") 
+             SFF5= px.line(df, x="Date",y= "RMW")
              SFF6= px.line(df, x="Date",y= "CMA")
              return (dcc.Graph(figure= SFF1),
                      dcc.Graph(figure=SFF5),
                      dcc.Graph(figure=SFF6))
-                     
-         
+
+
          if value=="{Mkt}":
              SFF1= px.line(df, x="Date",y= "Constant")
              SFF2= px.line(df, x="Date",y= "Mkt")
              return (dcc.Graph(figure= SFF1),
                      dcc.Graph(figure= SFF2))
-         
+
          if value=="{SMB}":
              SFF1= px.line(df, x="Date",y= "Constant")
              SFF3= px.line(df, x="Date",y= "SMB")
              return (dcc.Graph(figure= SFF1),
                      dcc.Graph(figure=SFF3))
-         
+
          if value=="{HML}":
              SFF1= px.line(df, x="Date",y= "Constant")
              SFF4= px.line(df, x="Date",y= "HML")
@@ -1307,7 +1313,7 @@ def update_graph_5factors(n_clicks, value):
              SFF4= px.line(df, x="Date",y= "RMW")
              return (dcc.Graph(figure=SFF1),
                      dcc.Graph(figure=SFF4))
-         
+
          if value=="{CMA}":
               SFF1= px.line(df, x="Date",y= "Constant")
               SFF4= px.line(df, x="Date",y= "CMA")
@@ -1320,7 +1326,7 @@ Input("table_5factors","n_clicks"))
 def make_table_5factors(n_clicks):
     csv_files = glob.glob(os.path.join("/home/thomas973/mysite/ox/betas1", "*.csv"))
     latest_file= max(csv_files,key= os.path.getmtime)
-    df= round(pd.read_csv(latest_file).drop("Unnamed: 0",axis=1),5)  
+    df= round(pd.read_csv(latest_file).drop("Unnamed: 0",axis=1),5)
     if n_clicks>0:
         return(dash_table.DataTable(id='SF',
                                   columns=[{'name':i,"id":i} for i in df.columns],
@@ -1329,7 +1335,7 @@ def make_table_5factors(n_clicks):
                                   ))
 # =============================================================================
 # Callbacks for the Rolling OLS method for the 3 factors and value weighted.
-# =============================================================================        
+# =============================================================================
 @app.callback(
     Output("container-graph-3factors_vw","children"),
     Input("3factors_vw","n_clicks"),
@@ -1346,11 +1352,11 @@ def make_graphics_vw(n_clicks, Portfolios_vw_value,dropdown_value, year, window_
      tab= tab.fit().params.rename(columns={"const":"intercept","Mkt-RF":"Bêta1","SMB":"Bêta2","HML":"Bêta3"})
      tab['year']=tab.index.year
      tab= tab[(tab["year"] >= year[0]) & (tab["year"] <= year[1])]
-       
+
      if n_clicks>0:
-             
+
              if dropdown_value==["Mkt-RF"]:
-                 
+
                  fig1= px.line(tab,x= tab.index, y="intercept",labels={"index":'date'}).add_hline(y= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).intercept_,
                                                                                         annotation_text= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).intercept_,annotation_font_size=14,annotation_font_color="red")
                  fig2= px.line(tab, x= tab.index, y="Bêta1",labels={"index":'date'}).add_hline(y= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).coef_[0],
@@ -1358,19 +1364,19 @@ def make_graphics_vw(n_clicks, Portfolios_vw_value,dropdown_value, year, window_
                                                                                    annotation_font_size=14,annotation_font_color="red")
                  return (dcc.Graph(figure=fig1),
                     dcc.Graph(figure=fig2))
-             
+
              elif dropdown_value==["SMB"]:
                 fig1= px.line(tab,x= tab.index, y="intercept",labels={"index":'date'}).add_hline(y= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).intercept_,
                                                                                         annotation_text= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
                 fig3= px.line(tab, x= tab.index, y="Bêta2",labels={"index":'date'}).add_hline(y= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).coef_[0],
                                                                                      annotation_text= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).coef_[0],annotation_font_size=14,annotation_font_color="red")
-                                                                                   
+
                 return (dcc.Graph(figure=fig1),
                 dcc.Graph(figure=fig3))
-            
+
              elif dropdown_value==["HML"]:
-         
+
                  fig1= px.line(tab,x= tab.index, y="intercept",labels={"index":'date'}).add_hline(y= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).intercept_,
                                                                                         annotation_text= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1378,8 +1384,8 @@ def make_graphics_vw(n_clicks, Portfolios_vw_value,dropdown_value, year, window_
                                                                                       annotation_text= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).coef_[0],annotation_font_size=14,annotation_font_color="red")
                  return (dcc.Graph(figure=fig1),
                   dcc.Graph(figure=fig4))
-            
-            
+
+
              elif dropdown_value==["Mkt-RF","SMB"] :
                  fig1= px.line(tab,x= tab.index, y="intercept",labels={"index":'date'}).add_hline(y= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).intercept_,
                                                                                         annotation_text= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).intercept_,
@@ -1392,7 +1398,7 @@ def make_graphics_vw(n_clicks, Portfolios_vw_value,dropdown_value, year, window_
                  return(dcc.Graph(figure=fig1),
                         dcc.Graph(figure=fig2),
                         dcc.Graph(figure=fig3))
-             
+
              elif dropdown_value==["Mkt-RF","HML"]:
                  fig1= px.line(tab,x= tab.index, y="intercept",labels={"index":'date'}).add_hline(y= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).intercept_,
                                                                                         annotation_text= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).intercept_,
@@ -1419,7 +1425,7 @@ def make_graphics_vw(n_clicks, Portfolios_vw_value,dropdown_value, year, window_
                  return(dcc.Graph(figure=fig1),
                         dcc.Graph(figure=fig3),
                         dcc.Graph(figure=fig4))
-             
+
              elif dropdown_value==["Mkt-RF","SMB","HML"] :
                  fig1= px.line(tab,x= tab.index, y="intercept",labels={"index":'date'}).add_hline(y= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).intercept_,
                                                                                         annotation_text= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).intercept_,
@@ -1429,18 +1435,18 @@ def make_graphics_vw(n_clicks, Portfolios_vw_value,dropdown_value, year, window_
                                                                                    annotation_font_size=14,annotation_font_color="red")
                  fig3= px.line(tab, x= tab.index, y="Bêta2",labels={"index":'date'}).add_hline(y= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).coef_[1],
                                                                                      annotation_text= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).coef_[1],
-                                                                                   annotation_font_size=14,annotation_font_color="red") 
+                                                                                   annotation_font_size=14,annotation_font_color="red")
                  fig4= px.line(tab, x= tab.index, y="Bêta3",labels={"index":'date'}).add_hline(y= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).coef_[2],
                                                                                      annotation_text= model.fit(concat[dropdown_value],concat[Portfolios_vw_value]).coef_[2],
-                                                                                   annotation_font_size=14,annotation_font_color="red") 
+                                                                                   annotation_font_size=14,annotation_font_color="red")
                  return(dcc.Graph(figure=fig1),
                  dcc.Graph(figure=fig2),
                  dcc.Graph(figure=fig3),
                  dcc.Graph(figure=fig4))
-             
+
 # =============================================================================
 # Callbacks for the Rolling OLS method for the 3 factors and equal weighted
-# =============================================================================         
+# =============================================================================
 @app.callback(
     Output("container-graph-3factors_ew","children"),
     Input("3factors_ew","n_clicks"),
@@ -1450,14 +1456,14 @@ def make_graphics_vw(n_clicks, Portfolios_vw_value,dropdown_value, year, window_
     Input("Window_ew","value"),
     prevent_initial_call=True
     )
-        
+
 
 def updategraph_ew(n_clicks,Portfolios_ew_value,dropdown_value, year, window_ew):
     tab= RollingOLS(concat[Portfolios_ew_value],add_constant(concat[dropdown_value]), window=window_ew)
     tab= tab.fit().params.rename(columns={"const":"intercept","Mkt-RF":"Bêta1","SMB":"Bêta2","HML":"Bêta3"})
     tab['year']=tab.index.year
     tab= tab[(tab["year"] >= year[0]) & (tab["year"] <= year[1])]
-    
+
 
     if n_clicks>0:
         if dropdown_value==["Mkt-RF"]:
@@ -1467,7 +1473,7 @@ def updategraph_ew(n_clicks,Portfolios_ew_value,dropdown_value, year, window_ew)
                                                                                           annotation_font_size=14,annotation_font_color="red")
             return (dcc.Graph(figure=fig1),
                 dcc.Graph(figure=fig2))
-        
+
         elif dropdown_value==["SMB"]:
             fig1= px.line(tab,x= tab.index, y="intercept",labels={"index":'date'}).add_hline(y= model.fit(concat[dropdown_value],concat[Portfolios_ew_value]).intercept_,
                                                                                         annotation_text= model.fit(concat[dropdown_value],concat[Portfolios_ew_value]).intercept_,
@@ -1477,7 +1483,7 @@ def updategraph_ew(n_clicks,Portfolios_ew_value,dropdown_value, year, window_ew)
                                                                                    annotation_font_size=14,annotation_font_color="red")
             return (dcc.Graph(figure=fig1),
                 dcc.Graph(figure=fig3))
-        
+
         elif dropdown_value==["HML"]:
             fig1= px.line(tab,x= tab.index, y="intercept",labels={"index":'date'}).add_hline(y= model.fit(concat[dropdown_value],concat[Portfolios_ew_value]).intercept_,
                                                                                         annotation_text= model.fit(concat[dropdown_value],concat[Portfolios_ew_value]).intercept_,
@@ -1487,7 +1493,7 @@ def updategraph_ew(n_clicks,Portfolios_ew_value,dropdown_value, year, window_ew)
                                                                                    annotation_font_size=14,annotation_font_color="red")
             return (dcc.Graph(figure=fig1),
                   dcc.Graph(figure=fig4))
-        
+
         elif dropdown_value==["Mkt-RF","SMB"]:
             fig1= px.line(tab,x= tab.index, y="intercept",labels={"index":'date'}).add_hline(y= model.fit(concat[['Mkt-RF',"SMB"]],concat[Portfolios_ew_value]).intercept_,
                                                                                         annotation_text= model.fit(concat[['Mkt-RF',"SMB"]],concat[Portfolios_ew_value]).intercept_,
@@ -1501,7 +1507,7 @@ def updategraph_ew(n_clicks,Portfolios_ew_value,dropdown_value, year, window_ew)
             return(dcc.Graph(figure=fig1),
                  dcc.Graph(figure=fig2),
                  dcc.Graph(figure=fig3))
-      
+
         elif dropdown_value==["Mkt-RF","HML"]:
             fig1= px.line(tab,x= tab.index, y="intercept",labels={"index":'date'}).add_hline(y= model.fit(concat[['Mkt-RF','HML']],concat[Portfolios_ew_value]).intercept_,
                                                                                         annotation_text= model.fit(concat[['Mkt-RF','HML']],concat[Portfolios_ew_value]).intercept_,
@@ -1528,7 +1534,7 @@ def updategraph_ew(n_clicks,Portfolios_ew_value,dropdown_value, year, window_ew)
             return(dcc.Graph(figure=fig1),
                    dcc.Graph(figure=fig3),
                    dcc.Graph(figure=fig4))
-     
+
         elif dropdown_value==["Mkt-RF","SMB","HML"]:
             fig1= px.line(tab,x= tab.index, y="intercept",labels={"index":'date'}).add_hline(y= model.fit(concat[['Mkt-RF',"SMB",'HML']],concat[Portfolios_ew_value]).intercept_,
                                                                                             annotation_text= model.fit(concat[['Mkt-RF',"SMB",'HML']],concat[Portfolios_ew_value]).intercept_,
@@ -1541,7 +1547,7 @@ def updategraph_ew(n_clicks,Portfolios_ew_value,dropdown_value, year, window_ew)
                                                                                        annotation_font_size=14,annotation_font_color="red")
             fig4= px.line(tab, x= tab.index, y="Bêta3",labels={"index":'date'}).add_hline(y= model.fit(concat[['Mkt-RF',"SMB",'HML']],concat[Portfolios_ew_value]).coef_[2],
                                                                                      annotation_text= model.fit(concat[['Mkt-RF',"SMB",'HML']],concat[Portfolios_ew_value]).coef_[2],
-                                                                                     annotation_font_size=14,annotation_font_color="red") 
+                                                                                     annotation_font_size=14,annotation_font_color="red")
             return(dcc.Graph(figure=fig1),
                  dcc.Graph(figure=fig2),
                  dcc.Graph(figure=fig3),
@@ -1549,7 +1555,7 @@ def updategraph_ew(n_clicks,Portfolios_ew_value,dropdown_value, year, window_ew)
 
 # =============================================================================
 # Callbacks for the RollingOLS method for the 5 factors and value weighted
-# =============================================================================   
+# =============================================================================
 @app.callback(
      Output("dropdown_5_factors_vw","value"),
      Input('all-or-none',"value"),
@@ -1559,8 +1565,8 @@ def select_all_none(all_selected, options):
     all_or_none = []
     all_or_none = [options["value"] for options in options if all_selected]
     return all_or_none
-   
-     
+
+
 @app.callback(
     Output("container-graph-rol-5factors_vw","children"),
     Input("5factors_vw","n_clicks"),
@@ -1569,8 +1575,8 @@ def select_all_none(all_selected, options):
     Input("my_rangeslider_5factors_vw","value"),
     Input("Window_5factors_vw","value"),
     prevent_initial_call=True
-    )  
-      
+    )
+
 def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,year, window_vw):
     tab1= RollingOLS(concat5factors[Portfolios_vw_value],add_constant(concat5factors[dropdown_5factors]),window=window_vw).fit().params.rename(columns={"const":"intercept","Mkt-RF":"Bêta1","SMB":"Bêta2","HML":"Bêta3","RMW":"Bêta4", "CMA": "Bêta5"}).reset_index()
     tab1=tab1.replace(tab1.index,concat.date[10420:])
@@ -1585,7 +1591,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                                                                                   annotation_font_size=14,annotation_font_color="red")
             return (dcc.Graph(figure= fig1),
                     dcc.Graph(figure=fig2))
-        
+
         elif dropdown_5factors==["SMB"]:
             fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[['SMB']],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[['SMB']],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1593,7 +1599,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                                                                                   annotation_font_size=14,annotation_font_color="red")
             return (dcc.Graph(figure= fig1),
                     dcc.Graph(figure=fig3))
-        
+
         elif dropdown_5factors==["HML"]:
             fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1601,7 +1607,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                                                                                   annotation_font_size=14,annotation_font_color="red")
             return (dcc.Graph(figure= fig1),
                     dcc.Graph(figure=fig4))
-        
+
         elif dropdown_5factors==["RMW"]:
             fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1609,7 +1615,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                                                                                   annotation_font_size=14,annotation_font_color="red")
             return (dcc.Graph(figure= fig1),
                     dcc.Graph(figure=fig5))
-        
+
         elif dropdown_5factors==["CMA"]:
             fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1617,7 +1623,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                                                                                   annotation_font_size=14,annotation_font_color="red")
             return (dcc.Graph(figure=fig1),
                     dcc.Graph(figure=fig6))
-        
+
         elif dropdown_5factors==["Mkt-RF","SMB"]:
             fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1628,7 +1634,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
             return(dcc.Graph(figure= fig1),
                     dcc.Graph(figure=fig2),
                     dcc.Graph(figure=fig3))
-        
+
         elif dropdown_5factors==["Mkt-RF","HML"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1639,7 +1645,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
              return (dcc.Graph(figure= fig1),
                     dcc.Graph(figure=fig2),
                     dcc.Graph(figure=fig4))
-         
+
         elif dropdown_5factors==["Mkt-RF","RMW"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1650,7 +1656,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
              return (dcc.Graph(figure= fig1),
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig5))
-         
+
         elif dropdown_5factors==["Mkt-RF","CMA"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1660,9 +1666,9 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                                                                                   annotation_font_size=14,annotation_font_color="red")
              return (dcc.Graph(figure= fig1),
                      dcc.Graph(figure=fig2),
-                     dcc.Graph(figure=fig6))         
-                          
-         
+                     dcc.Graph(figure=fig6))
+
+
         elif dropdown_5factors==["SMB","HML"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1670,11 +1676,11 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                                                                                   annotation_font_size=14,annotation_font_color="red")
              fig4=px.line(tab1, x="index",y="Bêta3" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[1],annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[1],
                                                                                   annotation_font_size=14,annotation_font_color="red")
-             
+
              return (dcc.Graph(figure=fig1),
                      dcc.Graph(figure=fig3),
                      dcc.Graph(figure=fig4))
-         
+
         elif dropdown_5factors==["SMB","RMW"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1685,7 +1691,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
              return (dcc.Graph(figure= fig1),
                      dcc.Graph(figure=fig3),
                      dcc.Graph(figure=fig5))
-         
+
         elif dropdown_5factors==["SMB","CMA"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1696,7 +1702,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
              return (dcc.Graph(figure= fig1),
                      dcc.Graph(figure=fig3),
                      dcc.Graph(figure=fig6))
-         
+
         elif dropdown_5factors==["HML","CMA"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1707,7 +1713,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
              return (dcc.Graph(figure= fig1),
                      dcc.Graph(figure=fig4),
                      dcc.Graph(figure=fig6))
-         
+
         elif dropdown_5factors==["HML","RMW"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1715,11 +1721,11 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                                                                                   annotation_font_size=14,annotation_font_color="red")
              fig5=px.line(tab1, x="index",y="Bêta4" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[1],annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[1],
                                                                                   annotation_font_size=14,annotation_font_color="red")
-             
+
              return (dcc.Graph(figure=fig1),
                      dcc.Graph(figure=fig4),
                      dcc.Graph(figure=fig5))
-         
+
         elif dropdown_5factors==["RMW","CMA"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1727,11 +1733,11 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                                                                                   annotation_font_size=14,annotation_font_color="red")
              fig6=px.line(tab1, x="index",y="Bêta5" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[1],annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[1],
                                                                                   annotation_font_size=14,annotation_font_color="red")
-             
+
              return (dcc.Graph(figure=fig1),
                      dcc.Graph(figure=fig5),
                      dcc.Graph(figure=fig6))
-         
+
         elif dropdown_5factors==["Mkt-RF","SMB","HML"]:
             fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1746,7 +1752,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                     dcc.Graph(figure=fig3),
                     dcc.Graph(figure=fig4)
                     )
-        
+
         elif dropdown_5factors==["Mkt-RF","SMB","RMW"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1760,7 +1766,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig3),
                      dcc.Graph(figure=fig5))
-         
+
         elif dropdown_5factors==["Mkt-RF","SMB","CMA"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1774,7 +1780,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig3),
                      dcc.Graph(figure=fig6))
-         
+
         elif dropdown_5factors==["Mkt-RF","HML","RMW"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1788,7 +1794,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig4),
                      dcc.Graph(figure=fig5))
-         
+
         elif dropdown_5factors==["Mkt-RF","HML","CMA"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1802,7 +1808,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig4),
                      dcc.Graph(figure=fig6))
-         
+
         elif dropdown_5factors==["Mkt-RF","RMW","CMA"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1816,7 +1822,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig5),
                      dcc.Graph(figure=fig6))
-         
+
         elif dropdown_5factors==["SMB","HML","RMW"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1830,7 +1836,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig5),
                      dcc.Graph(figure=fig6))
-         
+
         elif dropdown_5factors==["SMB","HML","CMA"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1844,7 +1850,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig5),
                      dcc.Graph(figure=fig6))
-         
+
         elif dropdown_5factors==["SMB","RMW","CMA"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1858,7 +1864,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig5),
                      dcc.Graph(figure=fig6))
-         
+
         elif dropdown_5factors==["HML","RMW","CMA"]:
              fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1872,9 +1878,9 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig5),
                      dcc.Graph(figure=fig6))
-         
-         
-         
+
+
+
         elif dropdown_5factors==["Mkt-RF","SMB","HML","RMW"]:
             fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1886,13 +1892,13 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                                                                                   annotation_font_size=14,annotation_font_color="red")
             fig5=px.line(tab1, x="index",y="Bêta4" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[3],annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[3],
                                                                                   annotation_font_size=14,annotation_font_color="red")
-            
+
             return(dcc.Graph(figure=fig1),
                    dcc.Graph(figure=fig2),
                    dcc.Graph(figure=fig3),
                    dcc.Graph(figure=fig4),
                    dcc.Graph(figure=fig5))
-        
+
         elif dropdown_5factors==["Mkt-RF","SMB","HML","CMA"]:
             fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -1904,18 +1910,18 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                                                                                   annotation_font_size=14,annotation_font_color="red")
             fig6=px.line(tab1, x="index",y="Bêta5" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[3],annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[3],
                                                                                   annotation_font_size=14,annotation_font_color="red")
-            
+
             return(dcc.Graph(figure=fig1),
                    dcc.Graph(figure=fig2),
                    dcc.Graph(figure=fig3),
                    dcc.Graph(figure=fig4),
                    dcc.Graph(figure=fig6))
-                 
+
         elif dropdown_5factors==["Mkt-RF","SMB","HML","RMW","CMA"]:
             fig1=px.line(tab1, x="index",y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
             fig2=px.line(tab1, x="index",y="Bêta1" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[0],annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[0],
-                                                                                  annotation_font_size=14,annotation_font_color="red") 
+                                                                                  annotation_font_size=14,annotation_font_color="red")
             fig3=px.line(tab1, x="index",y="Bêta2" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[1],annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[1],
                                                                                   annotation_font_size=14,annotation_font_color="red")
             fig4=px.line(tab1, x="index",y="Bêta3" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[2],annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[2],
@@ -1924,7 +1930,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                                                                                   annotation_font_size=14,annotation_font_color="red")
             fig6=px.line(tab1, x="index",y="Bêta5" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[4],annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_vw_value]).coef_[4],
                                                                                   annotation_font_size=14,annotation_font_color="red")
-            
+
             return(dcc.Graph(figure=fig1),
                    dcc.Graph(figure=fig2),
                    dcc.Graph(figure=fig3),
@@ -1933,7 +1939,7 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
                    dcc.Graph(figure=fig6))
 # =============================================================================
 # Callbacks for the RollingOLS method for the 5 factors and equal weighted
-# =============================================================================         
+# =============================================================================
 @app.callback(
      Output("dropdown_5_factors_ew","value"),
      Input('checklist_5factors_ew',"value"),
@@ -1942,9 +1948,9 @@ def make_graphics_5_factors_vw(n_clicks, Portfolios_vw_value,dropdown_5factors,y
 def select_all_none(all_selected, options):
     all_or_none = []
     all_or_none = [options["value"] for options in options if all_selected]
-    return all_or_none        
-        
-        
+    return all_or_none
+
+
 @app.callback(
     Output("container-graph-rol-5factors_ew","children"),
     Input("5factors_ew","n_clicks"),
@@ -1953,8 +1959,8 @@ def select_all_none(all_selected, options):
     Input("my_rangeslider_5factors_ew","value"),
     Input("Window_5_factors_ew","value"),
     prevent_initial_call=True
-    )  
-      
+    )
+
 def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,year, window_vw):
     tab_ew= RollingOLS(concat5factors[Portfolios_ew_value],add_constant(concat5factors[dropdown_5factors]),window=window_vw).fit().params.rename(columns={"const":"intercept","Mkt-RF":"Bêta1","SMB":"Bêta2","HML":"Bêta3","RMW":"Bêta4", "CMA": "Bêta5"})
     tab_ew["index"]=concat.index[10420:].date
@@ -1970,7 +1976,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
                                                                                             annotation_font_size=14,annotation_font_color="red")
             return (dcc.Graph(figure= fig1),
                     dcc.Graph(figure=fig2))
-        
+
         elif dropdown_5factors==["SMB"]:
             fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[['SMB']],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[['SMB']],concat5factors[Portfolios_ew_value]).intercept_,
@@ -1980,7 +1986,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
                                                                                            annotation_font_size=14,annotation_font_color="red")
             return (dcc.Graph(figure= fig1),
                     dcc.Graph(figure=fig3))
-        
+
         elif dropdown_5factors==["HML"]:
             fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
@@ -1990,7 +1996,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
                                                                                            annotation_font_size=14,annotation_font_color="red")
             return (dcc.Graph(figure= fig1),
                     dcc.Graph(figure=fig4))
-        
+
         elif dropdown_5factors==["RMW"]:
             fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
@@ -2000,7 +2006,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
                                                                                            annotation_font_size=14,annotation_font_color="red")
             return (dcc.Graph(figure= fig1),
                     dcc.Graph(figure=fig5))
-        
+
         elif dropdown_5factors==["CMA"]:
             fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
@@ -2010,7 +2016,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
                                                                                            annotation_font_size=14,annotation_font_color="red")
             return (dcc.Graph(figure=fig1),
                     dcc.Graph(figure=fig6))
-        
+
         elif dropdown_5factors==["Mkt-RF","SMB"]:
             fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
@@ -2024,7 +2030,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
             return(dcc.Graph(figure= fig1),
                     dcc.Graph(figure=fig2),
                     dcc.Graph(figure=fig3))
-        
+
         elif dropdown_5factors==["Mkt-RF","HML"]:
              fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
@@ -2038,7 +2044,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
              return (dcc.Graph(figure= fig1),
                     dcc.Graph(figure=fig2),
                     dcc.Graph(figure=fig4))
-                  
+
         elif dropdown_5factors==["Mkt-RF","RMW"]:
              fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
@@ -2052,7 +2058,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
              return (dcc.Graph(figure= fig1),
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig5))
-         
+
         elif dropdown_5factors==["Mkt-RF","CMA"]:
              fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
@@ -2076,11 +2082,11 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
              fig4=px.line(tab_ew, x=tab_ew["index"],y="Bêta3" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).coef_[1],
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).coef_[1],
                                                                                   annotation_font_size=14,annotation_font_color="red")
-             
+
              return (dcc.Graph(figure=fig1),
                      dcc.Graph(figure=fig3),
                      dcc.Graph(figure=fig4))
-         
+
         elif dropdown_5factors==["SMB","RMW"]:
              fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
@@ -2094,7 +2100,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
              return (dcc.Graph(figure= fig1),
                      dcc.Graph(figure=fig3),
                      dcc.Graph(figure=fig5))
-         
+
         elif dropdown_5factors==["SMB","CMA"]:
              fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
@@ -2108,7 +2114,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
              return (dcc.Graph(figure= fig1),
                      dcc.Graph(figure=fig3),
                      dcc.Graph(figure=fig6))
-         
+
         elif dropdown_5factors==["HML","CMA"]:
              fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
@@ -2122,7 +2128,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
              return (dcc.Graph(figure= fig1),
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig6))
-         
+
         elif dropdown_5factors==["HML","RMW"]:
              fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
@@ -2133,11 +2139,11 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
              fig5=px.line(tab_ew, x=tab_ew["index"],y="Bêta4" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).coef_[1],
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).coef_[1],
                                                                                   annotation_font_size=14,annotation_font_color="red")
-             
+
              return (dcc.Graph(figure=fig1),
                      dcc.Graph(figure=fig4),
                      dcc.Graph(figure=fig5))
-         
+
         elif dropdown_5factors==["RMW","CMA"]:
              fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
@@ -2148,11 +2154,11 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
              fig6=px.line(tab_ew, x=tab_ew["index"],y="Bêta5" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).coef_[1],
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).coef_[1],
                                                                                   annotation_font_size=14,annotation_font_color="red")
-             
+
              return (dcc.Graph(figure=fig1),
                      dcc.Graph(figure=fig5),
                      dcc.Graph(figure=fig6))
-         
+
         elif dropdown_5factors==["Mkt-RF","SMB","HML"]:
             fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
@@ -2171,7 +2177,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
                     dcc.Graph(figure=fig3),
                     dcc.Graph(figure=fig4)
                     )
-        
+
         elif dropdown_5factors==["Mkt-RF","SMB","RMW"]:
              fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -2185,7 +2191,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig3),
                      dcc.Graph(figure=fig5))
-         
+
         elif dropdown_5factors==["Mkt-RF","SMB","CMA"]:
              fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -2225,7 +2231,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig4),
                      dcc.Graph(figure=fig6))
-         
+
         elif dropdown_5factors==["Mkt-RF","RMW","CMA"]:
              fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -2239,7 +2245,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig5),
                      dcc.Graph(figure=fig6))
-         
+
         elif dropdown_5factors==["SMB","HML","RMW"]:
              fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -2253,7 +2259,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
                      dcc.Graph(figure=fig3),
                      dcc.Graph(figure=fig4),
                      dcc.Graph(figure=fig5))
-         
+
         elif dropdown_5factors==["SMB","HML","CMA"]:
              fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -2280,7 +2286,7 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig4),
                      dcc.Graph(figure=fig6))
-         
+
         elif dropdown_5factors==["HML","RMW","CMA"]:
              fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -2294,9 +2300,9 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
                      dcc.Graph(figure=fig2),
                      dcc.Graph(figure=fig4),
                      dcc.Graph(figure=fig6))
-         
-         
-         
+
+
+
         elif dropdown_5factors==["Mkt-RF","SMB","HML","RMW"]:
             fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
@@ -2313,13 +2319,13 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
             fig5=px.line(tab_ew, x=tab_ew["index"],y="Bêta4" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).coef_[3],
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).coef_[3],
                                                                                   annotation_font_size=14,annotation_font_color="red")
-            
+
             return(dcc.Graph(figure=fig1),
                    dcc.Graph(figure=fig2),
                    dcc.Graph(figure=fig3),
                    dcc.Graph(figure=fig4),
                    dcc.Graph(figure=fig5))
-        
+
         elif dropdown_5factors==["Mkt-RF","SMB","HML","CMA"]:
             fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
@@ -2336,20 +2342,20 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
             fig6=px.line(tab_ew, x=tab_ew["index"],y="Bêta5" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).coef_[3],
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).coef_[3],
                                                                                   annotation_font_size=14,annotation_font_color="red")
-            
+
             return(dcc.Graph(figure=fig1),
                    dcc.Graph(figure=fig2),
                    dcc.Graph(figure=fig3),
                    dcc.Graph(figure=fig4),
                    dcc.Graph(figure=fig6))
-                 
+
         elif dropdown_5factors==["Mkt-RF","SMB","HML","RMW","CMA"]:
             fig1=px.line(tab_ew, x=tab_ew["index"],y="intercept" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).intercept_,
                                                                                   annotation_font_size=14,annotation_font_color="red")
             fig2=px.line(tab_ew, x=tab_ew["index"],y="Bêta1" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).coef_[0],
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).coef_[0],
-                                                                                  annotation_font_size=14,annotation_font_color="red") 
+                                                                                  annotation_font_size=14,annotation_font_color="red")
             fig3=px.line(tab_ew, x=tab_ew["index"],y="Bêta2" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).coef_[1],
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).coef_[1],
                                                                                   annotation_font_size=14,annotation_font_color="red")
@@ -2362,15 +2368,15 @@ def make_graphics_5_factors_ew(n_clicks, Portfolios_ew_value,dropdown_5factors,y
             fig6=px.line(tab_ew, x=tab_ew["index"],y="Bêta5" ).add_hline(y= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).coef_[4],
                                                                                            annotation_text= model.fit(concat5factors[dropdown_5factors],concat5factors[Portfolios_ew_value]).coef_[4],
                                                                                   annotation_font_size=14,annotation_font_color="red")
-            
+
             return(dcc.Graph(figure=fig1),
                    dcc.Graph(figure=fig2),
                    dcc.Graph(figure=fig3),
                    dcc.Graph(figure=fig4),
                    dcc.Graph(figure=fig5),
-                   dcc.Graph(figure=fig6))        
-        
-        
-             
-if __name__ == '__main__': 
-    app.run_server(debug=True,use_reloader=False) 
+                   dcc.Graph(figure=fig6))
+
+
+
+if __name__ == '__main__':
+    app.run_server(debug=True,use_reloader=False)
